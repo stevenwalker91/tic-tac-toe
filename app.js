@@ -19,8 +19,14 @@ const Gameboard = (() => {
         return emptySlots;
     }
 
+    
+
     /***** SETTERS *****/ 
 
+    const updateGameboard = (index, symbol) => {
+        _gameBoard[index] = symbol;
+        console.log(_gameBoard);
+    }
     
     const clearBoard = () => {
         _gameBoard = [];
@@ -28,11 +34,11 @@ const Gameboard = (() => {
     };
 
 
-
     return { 
         clearBoard,
         getGameBoard,
-        getEmptySlots
+        getEmptySlots,
+        updateGameboard
     };
 })();
 
@@ -44,26 +50,38 @@ const DisplayController = (() => {
     const gameBoard = document.getElementById('game-board');
 
     gameBoard.addEventListener('click', function(event) {
-        const gameTile = event.target.dataset.id;
-        console.log(GameController.getactivePlayer())
+        const gameTile = parseInt(event.target.dataset.id);
+        const gameBoardValues = Gameboard.getGameBoard();
+        const currentPlayer = GameController.getactivePlayer();
 
-        console.log(gameTile);
-        updateGameboardUI();
+        //first check that the tile is empty
+        if (gameBoardValues[gameTile] !== 'X' && gameBoardValues[gameTile] !== 'O' ) {
+
+            currentPlayer.makeMove(gameTile, currentPlayer);
+        }
+        
+        
+
+
+        updateGameboardUI(event, currentPlayer);
     })
 
 
     //update th UI with latest gameBoard when a move is made
-    const updateGameboardUI = (player) => {
-
+    const updateGameboardUI = (event, player) => {
+        event.target.innerHTML = player.symbol;
     };
 
 })();
 
 const Player = (name, symbol) => {
-    const returnName = () => {
-        console.log(`Hi my name is ${name}`)
+
+    const makeMove = (index, currentPlayer) => {
+        //first pass the submission to the gameboard
+        Gameboard.updateGameboard(index, currentPlayer.symbol);
     }
-    return { name, symbol, returnName };
+
+    return { name, symbol, makeMove };
 };
 
 //create computer as prototype of player so it can inherit functions and then create computer specific stuff
@@ -82,7 +100,7 @@ const GameController = (() => {
     let _activePlayer = playerOne;
 
     //expose the activeplayer
-    function getactivePlayer()  {
+    const getactivePlayer = () => {
         return _activePlayer;
     }
 
@@ -90,14 +108,13 @@ const GameController = (() => {
     const switchPlayer = () => {
         if (_activePlayer == playerOne) {
             _activePlayer = playerTwo;
-        } else; {
+        } else {
             _activePlayer = playerOne;
         }
     }
 
-    console.log(playerTwo);
-    console.log(Computer.isPrototypeOf(Player));
-    playerTwo.returnName();
+
+
 
 
 

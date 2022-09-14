@@ -21,7 +21,11 @@ body {
 }
 
 .game-board-space {
-
+    display: flex;
     border: 1px solid black;
     cursor: pointer;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    font-size: 40px;
 }

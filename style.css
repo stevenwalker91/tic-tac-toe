@@ -1,0 +1,27 @@
+body {
+    margin: 0px;
+}
+
+#app-container {
+    display: flex;
+    justify-content: center;
+    margin: 20px;
+
+
+}
+
+#game-board {
+    display: grid;
+    grid-template: 100px 100px 100px / 100px 100px 100px;
+    width: 100px;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 50px;
+
+}
+
+.game-board-space {
+
+    border: 1px solid black;
+    cursor: pointer;
+}

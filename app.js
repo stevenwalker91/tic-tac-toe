@@ -2,7 +2,7 @@
 //gameboard purpose is any functions or variables related to the physical gameboard
 //this should not contain any logic that manupulates the UI, that should be seperated into a displayController (although gameboard may call on that external logic)
 const Gameboard = (() => {
-    let _gameBoard = ['','','','','','','','',''];
+    let _gameBoard = [0,1,2,3,4,5,6,7,8];
     /***** GETTERS *****/ 
 
     //returning the gameBoard array directly doesn't work because the return object retains the original value
@@ -13,7 +13,7 @@ const Gameboard = (() => {
 
     //function to check for empty gameBoard slots
     const getEmptySlots = () => {
-        const emptySlots = [];
+        const emptySlots = _gameBoard.filter(board => Number.isInteger(board));
         return emptySlots;
     }
 
@@ -21,7 +21,7 @@ const Gameboard = (() => {
 
     const updateGameboard = (index, symbol) => {
         _gameBoard[index] = symbol;
-        console.log(_gameBoard);
+
     }
     
     const clearBoard = () => {
@@ -40,18 +40,14 @@ const Gameboard = (() => {
 
 
 
+//display controller is 
 const DisplayController = (() => {
 
     //listen for user inputs on gameBoard
     const gameBoard = document.getElementById('game-board');
 
     gameBoard.addEventListener('click', function(event) {
-       
-        //check that it's a legal move
-        if (GameController.checkIfMoveIsLegal(event)) {
-            GameController.playRound(event);
-        }
-
+       GameController.playRound(event);
         
     });
 
@@ -87,7 +83,17 @@ const Player = (name, symbol) => {
 //create computer as prototype of player so it can inherit functions and then create computer specific stuff
 const Computer = (name, symbol) => {    
     const prototype = Player(name,symbol)
-    const returnVals = {}
+
+    const makeDumbMove = () => {
+        const availableTiles = Gameboard.getEmptySlots();
+        numberOfTiles = availableTiles.length;
+
+        const dumbSelection = Math.floor(Math.random() * numberOfTiles);
+        console.log(availableTiles[dumbSelection]);
+
+    }
+
+    const returnVals = {makeDumbMove}
     return Object.assign({},prototype,returnVals)
 };
 
@@ -113,12 +119,32 @@ const GameController = (() => {
     }
 
     const playRound = (event) => {
+        //first check if the move is legal, otherwise do nothing else
+        if (!checkIfMoveIsLegal(event)) {
+            return;
+        }
+
+        //get selected tile from event and then let the player make their move
         const gameTile = parseInt(event.target.dataset.id);
         _activePlayer.makeMove(gameTile);
+
+        //check now if the player has won
+        playerTwo.makeDumbMove();
+
+
     };
 
     const checkForWin = () => {
-        const winningMoves = [];
+        const winningMoves = [
+            [0,1,2],
+            [3,4,5],
+            [6,7,8],
+            [0,3,6],
+            [1,4,7],
+            [2,5,8],
+            [0,4,8],
+            [2,4,6]
+        ];
 
     }
     
@@ -127,7 +153,7 @@ const GameController = (() => {
         const gameTile = parseInt(event.target.dataset.id);
         const gameBoardValues = Gameboard.getGameBoard();
 
-        if (gameBoardValues[gameTile] == '' ) {
+        if (Number.isInteger(gameBoardValues[gameTile]) ) {
             //the field is empty and therefore a legal move
             return true
         }
@@ -139,7 +165,7 @@ const GameController = (() => {
 
     //function to check if the player move is valid
 
-    return { getactivePlayer, playRound, checkIfMoveIsLegal }
+    return { getactivePlayer, playRound }
     
 
 })();

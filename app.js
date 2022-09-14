@@ -2,9 +2,7 @@
 //gameboard purpose is any functions or variables related to the physical gameboard
 //this should not contain any logic that manupulates the UI, that should be seperated into a displayController (although gameboard may call on that external logic)
 const Gameboard = (() => {
-    let _gameBoard = [0,1,2,3,4,5,6,7,8];
-
-
+    let _gameBoard = ['','','','','','','','',''];
     /***** GETTERS *****/ 
 
     //returning the gameBoard array directly doesn't work because the return object retains the original value
@@ -18,8 +16,6 @@ const Gameboard = (() => {
         const emptySlots = [];
         return emptySlots;
     }
-
-    
 
     /***** SETTERS *****/ 
 
@@ -50,42 +46,45 @@ const DisplayController = (() => {
     const gameBoard = document.getElementById('game-board');
 
     gameBoard.addEventListener('click', function(event) {
-        const gameTile = parseInt(event.target.dataset.id);
-        const gameBoardValues = Gameboard.getGameBoard();
-        const currentPlayer = GameController.getactivePlayer();
-
-        //first check that the tile is empty
-        if (gameBoardValues[gameTile] !== 'X' && gameBoardValues[gameTile] !== 'O' ) {
-
-            currentPlayer.makeMove(gameTile, currentPlayer);
+       
+        //check that it's a legal move
+        if (GameController.checkIfMoveIsLegal(event)) {
+            GameController.playRound(event);
         }
-        
-        
 
-
-        updateGameboardUI(event, currentPlayer);
-    })
+        
+    });
 
 
     //update th UI with latest gameBoard when a move is made
-    const updateGameboardUI = (event, player) => {
-        event.target.innerHTML = player.symbol;
+    const updateGameboardUI = (index, symbol) => {
+        const element = document.getElementById(`board-space-${index}`)
+        element.innerHTML = symbol;
+
     };
+
+    return {
+        updateGameboardUI
+    }
 
 })();
 
-const Player = (name, symbol) => {
 
-    const makeMove = (index, currentPlayer) => {
-        //first pass the submission to the gameboard
-        Gameboard.updateGameboard(index, currentPlayer.symbol);
+
+const Player = (name, symbol) => {
+    const makeMove = (index) => {
+        //first pass the submission to the gameboard and then update the UI
+        Gameboard.updateGameboard(index, symbol);
+        DisplayController.updateGameboardUI(index, symbol);
+
     }
 
     return { name, symbol, makeMove };
 };
 
-//create computer as prototype of player so it can inherit functions and then create computer specific stuff
 
+
+//create computer as prototype of player so it can inherit functions and then create computer specific stuff
 const Computer = (name, symbol) => {    
     const prototype = Player(name,symbol)
     const returnVals = {}
@@ -113,25 +112,37 @@ const GameController = (() => {
         }
     }
 
+    const playRound = (event) => {
+        const gameTile = parseInt(event.target.dataset.id);
+        _activePlayer.makeMove(gameTile);
+    };
 
+    const checkForWin = () => {
+        const winningMoves = [];
 
+    }
+    
 
+    const checkIfMoveIsLegal = (event) => {
+        const gameTile = parseInt(event.target.dataset.id);
+        const gameBoardValues = Gameboard.getGameBoard();
 
+        if (gameBoardValues[gameTile] == '' ) {
+            //the field is empty and therefore a legal move
+            return true
+        }
+
+    }
 
     //function to check if the game is won
 
 
     //function to check if the player move is valid
 
-    return { getactivePlayer }
+    return { getactivePlayer, playRound, checkIfMoveIsLegal }
     
 
 })();
 
-const ComputerController = (() => {
-
-    //is this needed or should instead sit as part of the player object, perhaps a prototype which inherits from player?
-
-})();
 
 

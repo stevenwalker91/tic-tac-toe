@@ -84,12 +84,14 @@ const Player = (name, symbol) => {
 const Computer = (name, symbol) => {    
     const prototype = Player(name,symbol)
 
-    const makeDumbMove = () => {
+    const makeDumbMove = (player) => {
         const availableTiles = Gameboard.getEmptySlots();
         numberOfTiles = availableTiles.length;
 
         const dumbSelection = Math.floor(Math.random() * numberOfTiles);
         console.log(availableTiles[dumbSelection]);
+
+        player.makeMove(availableTiles[dumbSelection]);
 
     }
 
@@ -128,8 +130,11 @@ const GameController = (() => {
         const gameTile = parseInt(event.target.dataset.id);
         _activePlayer.makeMove(gameTile);
 
+
+        switchPlayer();
         //check now if the player has won
-        playerTwo.makeDumbMove();
+        playerTwo.makeDumbMove(_activePlayer);
+        switchPlayer();
 
 
     };

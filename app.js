@@ -79,16 +79,16 @@ const Player = (name, symbol) => {
 const Computer = (name, symbol) => {    
     const prototype = Player(name,symbol)
 
-    const makeDumbMove = (player) => {
+    const generateDumbMove = (player) => {
         const availableTiles = Gameboard.getEmptySlots();
         const numberOfTiles = availableTiles.length;
         const dumbSelection = Math.floor(Math.random() * numberOfTiles);
-
-        player.makeMove(availableTiles[dumbSelection]);
+        return availableTiles[dumbSelection];
+        //player.makeMove(availableTiles[dumbSelection]);
 
     }
 
-    return Object.assign({},prototype,{ makeDumbMove })
+    return Object.assign({},prototype,{ generateDumbMove })
 };
 
 const GameController = (() => {
@@ -116,33 +116,37 @@ const GameController = (() => {
     }
 
     const playRound = (event) => {
-        //first check if the move is legal, otherwise do nothing else
-        if (!_checkIfMoveIsLegal(event)) {
-            return;
+        //run loop twice so each player cna play
+        for ( j = 0 ; j < 2; j++ ) {
+            let tileSelection;
+
+            //check which player is active; get the user play from event and the bot play from random generation
+            if (_activePlayer == _playerOne) {
+                tileSelection = event.target.dataset.id;
+                console.log(tileSelection);
+            } else {
+                tileSelection = _playerTwo.generateDumbMove(_activePlayer);
+                console.log(tileSelection);
+            }
+
+            //check that the move is actually allowed before playing it
+            if (!_checkIfMoveIsLegal(tileSelection)) {
+                console.log('illegal')
+                return;
+            };
+            
+            //satisfied the move is legal so allow the move to take place
+            _activePlayer.makeMove(tileSelection);
+
+            //check for win and stop the game if found
+            if (_checkForWin(_activePlayer.symbol)) {
+                console.log(`Game over. ${_activePlayer.name} wins`);
+                return;
+            }
+
+            //switch the player before loop re-runs
+            _switchPlayer();
         }
-
-        //get selected tile from event and then let the player make their move
-        const gameTile = parseInt(event.target.dataset.id);
-        _activePlayer.makeMove(gameTile);
-
-        //check if the user has won
-        //add into this function for check draw, also use check number of moves and only call if 3 or more
-        if(_checkForWin(_activePlayer.symbol)) {
-            console.log('plan wins');
-            return false;
-        };
-
-        console.log('do i show');
-        
-
-        //joeyd up stuff here to do computer stuff - need to look at how this can better be done 
-        //also make sure it's only called if the player hasn't already won
-        _switchPlayer();
-        _playerTwo.makeDumbMove(_activePlayer);
-    
-        _switchPlayer();
-        _checkForWin(_activePlayer.symbol);
-
     };
 
     const _checkForWin = (symbol) => {
@@ -173,8 +177,8 @@ const GameController = (() => {
 
     }
     
-    const _checkIfMoveIsLegal = (event) => {
-        const gameTile = parseInt(event.target.dataset.id);
+    const _checkIfMoveIsLegal = (index) => {
+        const gameTile = parseInt(index);
 
         //replace this logic with instead calling the empty slots function and check the gameTile to see if it's there
         if (Number.isInteger(gameBoard[gameTile]) ) {

@@ -12,6 +12,7 @@ const Gameboard = (() => {
 
     //function to check for empty gameBoard slots
     const getEmptySlots = () => {
+        //empty slots are determined by having a number value (rather than a string symbol)
         const emptySlots = _gameBoard.filter(board => Number.isInteger(board));
         return emptySlots;
     }
@@ -95,6 +96,9 @@ const GameController = (() => {
     const _playerOne = Player('Steven', 'X');
     const _playerTwo = Computer('Bot', 'O');
 
+    //also get the gameboard because it's used in several of the module functions
+    const gameBoard = Gameboard.getGameBoard();
+
     let _activePlayer = _playerOne;
 
     //expose the activeplayer
@@ -122,12 +126,16 @@ const GameController = (() => {
         _activePlayer.makeMove(gameTile);
 
         //check if the user has won
+        //add into this function for check draw, also use check number of moves and only call if 3 or more
         let _wonGame = _checkForWin(_activePlayer.symbol);
         console.log(_wonGame) 
 
+
+
         console.log(_checkForWin(_activePlayer.symbol));
 
-        //joeyd up stuff here to do computer stuff - need to look at how this can better be done
+        //joeyd up stuff here to do computer stuff - need to look at how this can better be done 
+        //also make sure it's only called if the player hasn't already won
         _switchPlayer();
         _playerTwo.makeDumbMove(_activePlayer);
     
@@ -148,9 +156,6 @@ const GameController = (() => {
             [2,4,6]
         ];
 
-        const gameBoard = Gameboard.getGameBoard();
-        //rather than checking every single time, we should also consider checking how many moves have been made
-        //and only call the function if enough moves for a win have been made
 
         //for each loop cannot return during loop so this doesn't give the expected behaviour
         //need to replace this with a standard loop so we can return when a winning value is found
@@ -166,22 +171,17 @@ const GameController = (() => {
 
     }
     
-
     const _checkIfMoveIsLegal = (event) => {
         const gameTile = parseInt(event.target.dataset.id);
-        const gameBoardValues = Gameboard.getGameBoard();
 
-        if (Number.isInteger(gameBoardValues[gameTile]) ) {
+        //replace this logic with instead calling the empty slots function and check the gameTile to see if it's there
+        if (Number.isInteger(gameBoard[gameTile]) ) {
             //the field is empty and therefore a legal move
             return true
         }
 
     }
-
-
-    return { getactivePlayer, playRound }
-    
-
+    return { getactivePlayer, playRound }   
 })();
 
 

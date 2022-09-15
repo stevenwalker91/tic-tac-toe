@@ -26,7 +26,6 @@ const Gameboard = (() => {
         //call display controller to reflect the change - perhaps call this seperately within gameController to avoid functions doing multiple things
     };
 
-
     return { 
         clearBoard,
         getGameBoard,
@@ -45,21 +44,17 @@ const DisplayController = (() => {
 
     gameBoard.addEventListener('click', function(event) {
        GameController.playRound(event);
-        
     });
-
 
     //update th UI with latest gameBoard when a move is made
     const updateGameboardUI = (index, symbol) => {
         const element = document.getElementById(`board-space-${index}`)
         element.innerHTML = symbol;
-
     };
 
     return {
         updateGameboardUI
     }
-
 })();
 
 
@@ -69,8 +64,10 @@ const Player = (name, symbol) => {
         //first pass the submission to the gameboard and then update the UI
         Gameboard.updateGameboard(index, symbol);
         DisplayController.updateGameboardUI(index, symbol);
-
+        _moveCount ++;
     }
+
+    let _moveCount = 0;
 
     return { name, symbol, makeMove };
 };
@@ -83,24 +80,22 @@ const Computer = (name, symbol) => {
 
     const makeDumbMove = (player) => {
         const availableTiles = Gameboard.getEmptySlots();
-        numberOfTiles = availableTiles.length;
-
+        const numberOfTiles = availableTiles.length;
         const dumbSelection = Math.floor(Math.random() * numberOfTiles);
 
         player.makeMove(availableTiles[dumbSelection]);
 
     }
 
-    const returnVals = {makeDumbMove}
-    return Object.assign({},prototype,returnVals)
+    return Object.assign({},prototype,{ makeDumbMove })
 };
 
 const GameController = (() => {
 
-    const playerOne = Player('Steven', 'X');
-    const playerTwo = Computer('Bot', 'O');
+    const _playerOne = Player('Steven', 'X');
+    const _playerTwo = Computer('Bot', 'O');
 
-    let _activePlayer = playerOne;
+    let _activePlayer = _playerOne;
 
     //expose the activeplayer
     const getactivePlayer = () => {
@@ -108,17 +103,17 @@ const GameController = (() => {
     }
 
     //function to change the active player
-    const switchPlayer = () => {
-        if (_activePlayer == playerOne) {
-            _activePlayer = playerTwo;
+    const _switchPlayer = () => {
+        if (_activePlayer == _playerOne) {
+            _activePlayer = _playerTwo;
         } else {
-            _activePlayer = playerOne;
+            _activePlayer = _playerOne;
         }
     }
 
     const playRound = (event) => {
         //first check if the move is legal, otherwise do nothing else
-        if (!checkIfMoveIsLegal(event)) {
+        if (!_checkIfMoveIsLegal(event)) {
             return;
         }
 
@@ -126,15 +121,22 @@ const GameController = (() => {
         const gameTile = parseInt(event.target.dataset.id);
         _activePlayer.makeMove(gameTile);
 
+        //check if the user has won
+        let _wonGame = _checkForWin(_activePlayer.symbol);
+        console.log(_wonGame) 
+
+        console.log(_checkForWin(_activePlayer.symbol));
+
         //joeyd up stuff here to do computer stuff - need to look at how this can better be done
-        switchPlayer();
-        playerTwo.makeDumbMove(_activePlayer);
-        switchPlayer();
-        checkForWin(_activePlayer.symbol);
+        _switchPlayer();
+        _playerTwo.makeDumbMove(_activePlayer);
+    
+        _switchPlayer();
+        _checkForWin(_activePlayer.symbol);
 
     };
 
-    const checkForWin = (symbol) => {
+    const _checkForWin = (symbol) => {
         const winningMoves = [
             [0,1,2],
             [3,4,5],
@@ -146,23 +148,26 @@ const GameController = (() => {
             [2,4,6]
         ];
 
+        const gameBoard = Gameboard.getGameBoard();
+        //rather than checking every single time, we should also consider checking how many moves have been made
+        //and only call the function if enough moves for a win have been made
+
+        //for each loop cannot return during loop so this doesn't give the expected behaviour
+        //need to replace this with a standard loop so we can return when a winning value is found
         winningMoves.forEach(array => {
-            const gameBoard = Gameboard.getGameBoard();
-            //console.log(gameBoard);
-            let fieldOne = document.getElementById(`board-space-${array[0]}`).innerHTML
-            let fieldTwo = document.getElementById(`board-space-${array[1]}`).innerHTML
-            let fieldThree = document.getElementById(`board-space-${array[2]}`).innerHTML
-          
-            //gameboard array needs to be dynamic
+            
             if(gameBoard[array[0]] == symbol && gameBoard[array[1]] == symbol & gameBoard[array[2]] == symbol) {
-                console.log('win')
+                console.log('win');
+                return true;
+            } else {
+                return false;
             }
         })
 
     }
     
 
-    const checkIfMoveIsLegal = (event) => {
+    const _checkIfMoveIsLegal = (event) => {
         const gameTile = parseInt(event.target.dataset.id);
         const gameBoardValues = Gameboard.getGameBoard();
 
@@ -173,10 +178,6 @@ const GameController = (() => {
 
     }
 
-    //function to check if the game is won
-
-
-    //function to check if the player move is valid
 
     return { getactivePlayer, playRound }
     

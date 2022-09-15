@@ -3,7 +3,6 @@
 //this should not contain any logic that manupulates the UI, that should be seperated into a displayController (although gameboard may call on that external logic)
 const Gameboard = (() => {
     let _gameBoard = [0,1,2,3,4,5,6,7,8];
-    /***** GETTERS *****/ 
 
     //returning the gameBoard array directly doesn't work because the return object retains the original value
     //so instead expose a function so it can change dynamically
@@ -16,8 +15,6 @@ const Gameboard = (() => {
         const emptySlots = _gameBoard.filter(board => Number.isInteger(board));
         return emptySlots;
     }
-
-    /***** SETTERS *****/ 
 
     const updateGameboard = (index, symbol) => {
         _gameBoard[index] = symbol;
@@ -89,7 +86,6 @@ const Computer = (name, symbol) => {
         numberOfTiles = availableTiles.length;
 
         const dumbSelection = Math.floor(Math.random() * numberOfTiles);
-        console.log(availableTiles[dumbSelection]);
 
         player.makeMove(availableTiles[dumbSelection]);
 
@@ -130,16 +126,15 @@ const GameController = (() => {
         const gameTile = parseInt(event.target.dataset.id);
         _activePlayer.makeMove(gameTile);
 
-
+        //joeyd up stuff here to do computer stuff - need to look at how this can better be done
         switchPlayer();
-        //check now if the player has won
         playerTwo.makeDumbMove(_activePlayer);
         switchPlayer();
-
+        checkForWin(_activePlayer.symbol);
 
     };
 
-    const checkForWin = () => {
+    const checkForWin = (symbol) => {
         const winningMoves = [
             [0,1,2],
             [3,4,5],
@@ -150,6 +145,16 @@ const GameController = (() => {
             [0,4,8],
             [2,4,6]
         ];
+
+        winningMoves.forEach(array => {
+            let fieldOne = document.getElementById(`board-space-${array[0]}`).innerHTML
+            let fieldTwo = document.getElementById(`board-space-${array[1]}`).innerHTML
+            let fieldThree = document.getElementById(`board-space-${array[2]}`).innerHTML
+
+            if(fieldOne == symbol && fieldTwo == symbol & fieldThree == symbol) {
+                console.log('win')
+            }
+        })
 
     }
     

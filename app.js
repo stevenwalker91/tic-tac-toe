@@ -41,9 +41,9 @@ const Gameboard = (() => {
 const DisplayController = (() => {
 
     //listen for user inputs on gameBoard
-    const gameBoard = document.getElementById('game-board');
+    const _gameBoard = document.getElementById('game-board');
 
-    gameBoard.addEventListener('click', function(event) {
+    _gameBoard.addEventListener('click', function(event) {
        GameController.playRound(event);
     });
 
@@ -53,8 +53,14 @@ const DisplayController = (() => {
         element.innerHTML = symbol;
     };
 
+    const updateResults = (winner) => {
+        const element = document.getElementById('result-container');
+        element.innerHTML = `Game Over. ${winner} wins!`
+    }
+
     return {
-        updateGameboardUI
+        updateGameboardUI,
+        updateResults
     }
 })();
 
@@ -79,17 +85,17 @@ const Player = (name, symbol) => {
 const Computer = (name, symbol) => {    
     const prototype = Player(name,symbol)
 
-    const generateDumbMove = (player) => {
+    const generateDumbMove = () => {
+        //get the empty slots and then use math random to select one of the free ones
         const availableTiles = Gameboard.getEmptySlots();
         const numberOfTiles = availableTiles.length;
         const dumbSelection = Math.floor(Math.random() * numberOfTiles);
         return availableTiles[dumbSelection];
-        //player.makeMove(availableTiles[dumbSelection]);
-
     }
 
     return Object.assign({},prototype,{ generateDumbMove })
 };
+
 
 const GameController = (() => {
 
@@ -123,10 +129,8 @@ const GameController = (() => {
             //check which player is active; get the user play from event and the bot play from random generation
             if (_activePlayer == _playerOne) {
                 tileSelection = event.target.dataset.id;
-                console.log(tileSelection);
             } else {
-                tileSelection = _playerTwo.generateDumbMove(_activePlayer);
-                console.log(tileSelection);
+                tileSelection = _playerTwo.generateDumbMove();
             }
 
             //check that the move is actually allowed before playing it
@@ -140,7 +144,7 @@ const GameController = (() => {
 
             //check for win and stop the game if found
             if (_checkForWin(_activePlayer.symbol)) {
-                console.log(`Game over. ${_activePlayer.name} wins`);
+                _handleWin();
                 return;
             }
 
@@ -148,6 +152,17 @@ const GameController = (() => {
             _switchPlayer();
         }
     };
+
+    const _checkIfMoveIsLegal = (index) => {
+        const gameTile = parseInt(index);
+
+        //replace this logic with instead calling the empty slots function and check the gameTile to see if it's there
+        if (Number.isInteger(gameBoard[gameTile]) ) {
+            //the field is empty and therefore a legal move
+            return true
+        }
+
+    }
 
     const _checkForWin = (symbol) => {
         const winningMoves = [
@@ -161,32 +176,28 @@ const GameController = (() => {
             [2,4,6]
         ];
 
-
         //forEach doesn't work because it can't return mid flow, instead use a for loop to go through each set of
         // winning moves and check if any are shown on the gameboard. if the loop doesn't pick up a win the function returns false
         for ( i = 0; i < winningMoves.length; i++ ) {
             if (gameBoard[winningMoves[i][0]] == symbol && 
                 gameBoard[winningMoves[i][1]] == symbol && 
                 gameBoard[winningMoves[i][2]] == symbol) {
-
                 return true;
             } 
         }
-
         return false;
+    }
 
+    const _handleWin = () => {
+        console.log(`Game over. ${_activePlayer.name} wins`);
+        //output win to the UI
+        DisplayController.updateResults(_activePlayer.name);
+        //lock inputs so player can't keep clicking
+
+        //
     }
     
-    const _checkIfMoveIsLegal = (index) => {
-        const gameTile = parseInt(index);
 
-        //replace this logic with instead calling the empty slots function and check the gameTile to see if it's there
-        if (Number.isInteger(gameBoard[gameTile]) ) {
-            //the field is empty and therefore a legal move
-            return true
-        }
-
-    }
     return { getactivePlayer, playRound }   
 })();
 

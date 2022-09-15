@@ -37,35 +37,6 @@ const Gameboard = (() => {
 
 
 
-//display controller is 
-const DisplayController = (() => {
-
-    //listen for user inputs on gameBoard
-    const _gameBoard = document.getElementById('game-board');
-
-    _gameBoard.addEventListener('click', function(event) {
-       GameController.playRound(event);
-    });
-
-    //update th UI with latest gameBoard when a move is made
-    const updateGameboardUI = (index, symbol) => {
-        const element = document.getElementById(`board-space-${index}`)
-        element.innerHTML = symbol;
-    };
-
-    const updateResults = (winner) => {
-        const element = document.getElementById('result-container');
-        element.innerHTML = `Game Over. ${winner} wins!`
-    }
-
-    return {
-        updateGameboardUI,
-        updateResults
-    }
-})();
-
-
-
 const Player = (name, symbol) => {
     const makeMove = (index) => {
         //first pass the submission to the gameboard and then update the UI
@@ -123,7 +94,7 @@ const GameController = (() => {
 
     const playRound = (event) => {
         //run loop twice so each player cna play
-        for ( j = 0 ; j < 2; j++ ) {
+        for ( let i = 0 ; i < 2; i++ ) {
             let tileSelection;
 
             //check which player is active; get the user play from event and the bot play from random generation
@@ -135,7 +106,6 @@ const GameController = (() => {
 
             //check that the move is actually allowed before playing it
             if (!_checkIfMoveIsLegal(tileSelection)) {
-                console.log('illegal')
                 return;
             };
             
@@ -145,7 +115,7 @@ const GameController = (() => {
             //check for win and stop the game if found
             if (_checkForWin(_activePlayer.symbol)) {
                 _handleWin();
-                return;
+                break
             }
 
             //switch the player before loop re-runs
@@ -193,8 +163,9 @@ const GameController = (() => {
         //output win to the UI
         DisplayController.updateResults(_activePlayer.name);
         //lock inputs so player can't keep clicking
-
-        //
+        DisplayController.removeEventListener();
+        DisplayController.disableControls();
+        return;
     }
     
 
@@ -203,3 +174,56 @@ const GameController = (() => {
 
 
 
+const DisplayController = (() => {
+
+    //listen for user inputs on gameBoard
+    const _gameBoardUI = document.getElementById('game-board');
+
+    //add this as a function so we can recall it later after we've removed it
+    const addEventListener = () => {
+        _gameBoardUI.addEventListener('click', GameController.playRound);
+
+    }
+    
+    const removeEventListener = () => {
+        _gameBoardUI.removeEventListener('click', GameController.playRound);
+    }
+
+    //update th UI with latest gameBoard when a move is made
+    const updateGameboardUI = (index, symbol) => {
+        const element = document.getElementById(`board-space-${index}`)
+        element.innerHTML = symbol;
+    };
+
+    const updateResults = (winner) => {
+        const element = document.getElementById('result-container');
+        element.innerHTML = `Game Over. ${winner} wins!`
+    }
+
+    const disableControls = () => {
+        const boardSquares = document.querySelectorAll('.game-board-space');
+        boardSquares.forEach(square => {
+            square.classList.add('disabled');
+        })
+    }
+
+    const enableControls = () => {
+        boardSquares.forEach(square => {
+            square.classList.remove('disabled');
+        })
+    }
+
+    addEventListener();
+    //
+
+
+    return {
+        updateGameboardUI,
+        updateResults,
+        removeEventListener,
+        addEventListener,
+        disableControls,
+        enableControls
+
+    }
+})();

@@ -29,3 +29,10 @@ body {
     font-weight: bold;
     font-size: 40px;
 }
+
+.disabled {
+    cursor: default;
+    border: 1px solid gray;
+    color: gray;
+}
+

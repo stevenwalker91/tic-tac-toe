@@ -91,7 +91,6 @@ const GameController = (() => {
 
     const playRound = (event) => {
         //run loop twice so each player cna play
-        console.log('playing round');
         for ( let i = 0 ; i < 2; i++ ) {
             let tileSelection;
 

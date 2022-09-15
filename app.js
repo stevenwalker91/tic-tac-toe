@@ -127,12 +127,13 @@ const GameController = (() => {
 
         //check if the user has won
         //add into this function for check draw, also use check number of moves and only call if 3 or more
-        let _wonGame = _checkForWin(_activePlayer.symbol);
-        console.log(_wonGame) 
+        if(_checkForWin(_activePlayer.symbol)) {
+            console.log('plan wins');
+            return false;
+        };
 
-
-
-        console.log(_checkForWin(_activePlayer.symbol));
+        console.log('do i show');
+        
 
         //joeyd up stuff here to do computer stuff - need to look at how this can better be done 
         //also make sure it's only called if the player hasn't already won
@@ -157,17 +158,18 @@ const GameController = (() => {
         ];
 
 
-        //for each loop cannot return during loop so this doesn't give the expected behaviour
-        //need to replace this with a standard loop so we can return when a winning value is found
-        winningMoves.forEach(array => {
-            
-            if(gameBoard[array[0]] == symbol && gameBoard[array[1]] == symbol & gameBoard[array[2]] == symbol) {
-                console.log('win');
+        //forEach doesn't work because it can't return mid flow, instead use a for loop to go through each set of
+        // winning moves and check if any are shown on the gameboard. if the loop doesn't pick up a win the function returns false
+        for ( i = 0; i < winningMoves.length; i++ ) {
+            if (gameBoard[winningMoves[i][0]] == symbol && 
+                gameBoard[winningMoves[i][1]] == symbol && 
+                gameBoard[winningMoves[i][2]] == symbol) {
+
                 return true;
-            } else {
-                return false;
-            }
-        })
+            } 
+        }
+
+        return false;
 
     }
     

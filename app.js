@@ -23,7 +23,7 @@ const Gameboard = (() => {
     }
     
     const clearBoard = () => {
-        _gameBoard = [];
+        _gameBoard = [0,1,2,3,4,5,6,7,8];
         //call display controller to reflect the change - perhaps call this seperately within gameController to avoid functions doing multiple things
     };
 
@@ -73,9 +73,6 @@ const GameController = (() => {
     const _playerOne = Player('Steven', 'X');
     const _playerTwo = Computer('Bot', 'O');
 
-    //also get the gameboard because it's used in several of the module functions
-    const gameBoard = Gameboard.getGameBoard();
-
     let _activePlayer = _playerOne;
 
     //expose the activeplayer
@@ -94,6 +91,7 @@ const GameController = (() => {
 
     const playRound = (event) => {
         //run loop twice so each player cna play
+        console.log('playing round');
         for ( let i = 0 ; i < 2; i++ ) {
             let tileSelection;
 
@@ -124,6 +122,7 @@ const GameController = (() => {
     };
 
     const _checkIfMoveIsLegal = (index) => {
+        const gameBoard = Gameboard.getGameBoard();
         const gameTile = parseInt(index);
 
         //replace this logic with instead calling the empty slots function and check the gameTile to see if it's there
@@ -135,6 +134,7 @@ const GameController = (() => {
     }
 
     const _checkForWin = (symbol) => {
+        const gameBoard = Gameboard.getGameBoard();
         const winningMoves = [
             [0,1,2],
             [3,4,5],
@@ -159,7 +159,6 @@ const GameController = (() => {
     }
 
     const _handleWin = () => {
-        console.log(`Game over. ${_activePlayer.name} wins`);
         //output win to the UI
         DisplayController.updateResults(_activePlayer.name);
         //lock inputs so player can't keep clicking
@@ -167,9 +166,22 @@ const GameController = (() => {
         DisplayController.disableControls();
         return;
     }
+
+    const restartGame = () => {
+        const gameBoard = Gameboard.getGameBoard();
+        Gameboard.clearBoard();
+        DisplayController.clearGameBoard();
+        DisplayController.enableControls();
+        DisplayController.addEventListener();   
+        DisplayController.clearResults();
+    }
     
 
-    return { getactivePlayer, playRound }   
+    return { 
+        getactivePlayer, 
+        playRound,
+        restartGame
+    }   
 })();
 
 
@@ -178,6 +190,9 @@ const DisplayController = (() => {
 
     //listen for user inputs on gameBoard
     const _gameBoardUI = document.getElementById('game-board');
+    const _boardSquares = document.querySelectorAll('.game-board-space');
+    const _results = document.getElementById('result-container');
+    const _restartBtn =  document.getElementById('new-game');
 
     //add this as a function so we can recall it later after we've removed it
     const addEventListener = () => {
@@ -189,6 +204,8 @@ const DisplayController = (() => {
         _gameBoardUI.removeEventListener('click', GameController.playRound);
     }
 
+    _restartBtn.addEventListener('click', GameController.restartGame);
+
     //update th UI with latest gameBoard when a move is made
     const updateGameboardUI = (index, symbol) => {
         const element = document.getElementById(`board-space-${index}`)
@@ -196,26 +213,33 @@ const DisplayController = (() => {
     };
 
     const updateResults = (winner) => {
-        const element = document.getElementById('result-container');
-        element.innerHTML = `Game Over. ${winner} wins!`
+        _results.innerHTML = `Game Over. ${winner} wins!`;
+    }
+
+    const clearResults = () => {
+        _results.innerHTML = ``;
     }
 
     const disableControls = () => {
-        const boardSquares = document.querySelectorAll('.game-board-space');
-        boardSquares.forEach(square => {
+        _boardSquares.forEach(square => {
             square.classList.add('disabled');
         })
     }
 
     const enableControls = () => {
-        boardSquares.forEach(square => {
+        _boardSquares.forEach(square => {
             square.classList.remove('disabled');
         })
     }
 
-    addEventListener();
-    //
+    const clearGameBoard = () => {
+        _boardSquares.forEach(square => {
+            square.innerHTML = '';
+        })
+    }
 
+    //call this so game is ready to play as soon as player clicks an option
+    addEventListener();
 
     return {
         updateGameboardUI,
@@ -223,7 +247,9 @@ const DisplayController = (() => {
         removeEventListener,
         addEventListener,
         disableControls,
-        enableControls
+        enableControls,
+        clearResults,
+        clearGameBoard
 
     }
 })();

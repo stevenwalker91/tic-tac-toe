@@ -147,11 +147,14 @@ const GameController = (() => {
         ];
 
         winningMoves.forEach(array => {
+            const gameBoard = Gameboard.getGameBoard();
+            //console.log(gameBoard);
             let fieldOne = document.getElementById(`board-space-${array[0]}`).innerHTML
             let fieldTwo = document.getElementById(`board-space-${array[1]}`).innerHTML
             let fieldThree = document.getElementById(`board-space-${array[2]}`).innerHTML
-
-            if(fieldOne == symbol && fieldTwo == symbol & fieldThree == symbol) {
+          
+            //gameboard array needs to be dynamic
+            if(gameBoard[array[0]] == symbol && gameBoard[array[1]] == symbol & gameBoard[array[2]] == symbol) {
                 console.log('win')
             }
         })

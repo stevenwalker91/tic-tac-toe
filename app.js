@@ -70,9 +70,10 @@ const Computer = (name, symbol) => {
 
 const GameController = (() => {
 
-    const _playerOne = Player('Steven', 'X');
-    const _playerTwo = Computer('Bot', 'O');
 
+    const _playerOne = Player('Player 1', 'X');
+    const _playerTwo = Computer('Bot', 'O');
+ 
     let _activePlayer = _playerOne;
 
     //expose the activeplayer
@@ -90,7 +91,14 @@ const GameController = (() => {
     }
 
     const playRound = (event) => {
-        //run loop twice so each player cna play
+
+        //if the player has submitted a name, update the player object with it, otherwise leave it as player 1
+        //the problem with this is it runs every round, need a smarter way to do i for the game
+        const playerName = DisplayController.getUIUser();
+        if(playerName !== ''){
+            _playerOne.name = playerName;
+        }
+        //run loop twice so each player can play
         for ( let i = 0 ; i < 2; i++ ) {
             let tileSelection;
 
@@ -167,6 +175,13 @@ const GameController = (() => {
     }
 
     const restartGame = () => {
+        //don't allow the game unless the player name is filled in
+        const playerName = DisplayController.getUIUser();
+        if(playerName === ''){
+            return;
+        }
+        
+        //different functions needed to restart the game and refresh the UI
         const gameBoard = Gameboard.getGameBoard();
         Gameboard.clearBoard();
         DisplayController.clearGameBoard();
@@ -192,6 +207,7 @@ const DisplayController = (() => {
     const _boardSquares = document.querySelectorAll('.game-board-space');
     const _results = document.getElementById('result-container');
     const _restartBtn =  document.getElementById('new-game');
+    const _startBtn = document.getElementById('enter-name');
 
     //add this as a function so we can recall it later after we've removed it
     const addEventListener = () => {
@@ -204,6 +220,7 @@ const DisplayController = (() => {
     }
 
     _restartBtn.addEventListener('click', GameController.restartGame);
+    _startBtn.addEventListener('click', GameController.restartGame);
 
     //update th UI with latest gameBoard when a move is made
     const updateGameboardUI = (index, symbol) => {
@@ -211,6 +228,10 @@ const DisplayController = (() => {
         element.innerHTML = symbol;
     };
 
+    const getUIUser = () => {
+        const inputField = document.getElementById('user-name');
+        return inputField.value;
+    }
     const updateResults = (winner) => {
         _results.innerHTML = `Game Over. ${winner} wins!`;
     }
@@ -237,9 +258,6 @@ const DisplayController = (() => {
         })
     }
 
-    //call this so game is ready to play as soon as player clicks an option
-    addEventListener();
-
     return {
         updateGameboardUI,
         updateResults,
@@ -248,7 +266,18 @@ const DisplayController = (() => {
         disableControls,
         enableControls,
         clearResults,
-        clearGameBoard
-
+        clearGameBoard,
+        getUIUser
     }
 })();
+
+//keep this stuff in global namespace so that it doesn't immediately get executed in the playround function if the user hasn't yet submitted a name
+/*const startBtn = document.getElementById('enter-name');
+
+const getUIUser = () => {
+    const inputField = document.getElementById('user-name');
+    console.log(inputField.value);
+    return inputField.value;
+} */
+
+

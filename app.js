@@ -164,7 +164,7 @@ const GameController = (() => {
             if (gameBoard[winningMoves[i][0]] == symbol && 
                 gameBoard[winningMoves[i][1]] == symbol && 
                 gameBoard[winningMoves[i][2]] == symbol) {
-                    console.log(`${gameBoard[winningMoves[i][0]]} ${gameBoard[winningMoves[i][1]]} ${gameBoard[winningMoves[i][0]]}`)
+                    console.log(i);
                 return true;
             } 
         }

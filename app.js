@@ -123,6 +123,11 @@ const GameController = (() => {
                 break
             }
 
+            //finally check for a draw and stop the game if won
+            if (_checkForDraw()) {
+                _handleDraw();
+            };
+
             //switch the player before loop re-runs
             _switchPlayer();
         }
@@ -159,15 +164,32 @@ const GameController = (() => {
             if (gameBoard[winningMoves[i][0]] == symbol && 
                 gameBoard[winningMoves[i][1]] == symbol && 
                 gameBoard[winningMoves[i][2]] == symbol) {
+                    console.log(`${gameBoard[winningMoves[i][0]]} ${gameBoard[winningMoves[i][1]]} ${gameBoard[winningMoves[i][0]]}`)
                 return true;
             } 
         }
         return false;
     }
 
+    const _checkForDraw = () => {
+        emptySlots = Gameboard.getEmptySlots();
+        if (emptySlots.length === 0 ) {
+            return true;
+        }
+    }
+
     const _handleWin = () => {
         //output win to the UI
-        DisplayController.updateResults(_activePlayer.name);
+        DisplayController.updateResults(_activePlayer.name, 'win');
+        //lock inputs so player can't keep clicking
+        DisplayController.removeEventListener();
+        DisplayController.disableControls();
+        return;
+    }
+
+    const _handleDraw = () => {
+        //output draw to the UI
+        DisplayController.updateResults(_activePlayer.name, 'draw');
         //lock inputs so player can't keep clicking
         DisplayController.removeEventListener();
         DisplayController.disableControls();
@@ -232,8 +254,13 @@ const DisplayController = (() => {
         const inputField = document.getElementById('user-name');
         return inputField.value;
     }
-    const updateResults = (winner) => {
-        _results.innerHTML = `Game Over. ${winner} wins!`;
+    const updateResults = (player, updateType) => {
+        if (updateType === 'win') {
+            _results.innerHTML = `Game Over. ${player} wins!`;
+        } else {
+            _results.innerHTML = `Game Over. It was a draw.`;
+        }
+        
     }
 
     const clearResults = () => {
@@ -271,13 +298,5 @@ const DisplayController = (() => {
     }
 })();
 
-//keep this stuff in global namespace so that it doesn't immediately get executed in the playround function if the user hasn't yet submitted a name
-/*const startBtn = document.getElementById('enter-name');
-
-const getUIUser = () => {
-    const inputField = document.getElementById('user-name');
-    console.log(inputField.value);
-    return inputField.value;
-} */
 
 
